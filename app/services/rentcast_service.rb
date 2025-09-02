@@ -20,9 +20,11 @@ class RentcastService
     query = filter_params(params)
 
     # Cache key based on query params
-    cache_key = "rentcast_rentals/#{query.to_param}"
+    cache_key = "rentcast_rentals/#{Digest::MD5.hexdigest(query.to_query)}"
 
-    Rails.cache.fetch(cache_key, expires_in: 7.days) do
+    expires_in = Rails.env.development? ? 30.days : 7.days
+
+    Rails.cache.fetch(cache_key, expires_in: expires_in) do
       response = self.class.get('/listings/rental/long-term', headers: @headers, query: query)
       raise "RentCast API error: #{response.code}" unless response.success?
 
@@ -38,6 +40,6 @@ class RentcastService
   private
 
   def filter_params(params)
-    params.to_h.slice(*ALLOWED_PARAMS)
+   params.to_h.stringify_keys.slice(*ALLOWED_PARAMS)
   end
 end
