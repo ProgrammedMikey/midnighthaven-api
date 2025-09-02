@@ -15,10 +15,28 @@ class ListingsController < ApplicationController
     render json: { error: e.message }, status: :bad_gateway
   end
 
- def homepage
+  def homepage
     service = RentcastService.new
-    listings = service.rental_listings(limit: 10)
-    render json: listings, status: :ok
+    cities = %w[Orlando Tampa Miami]
+    state = 'FL'
+    limit = 10
+
+    results = cities.map do |city|
+      listings = service.rental_listings(
+        'city' => city,
+        'state' => state,
+        'limit' => limit,
+        'daysOld' => '*:30',
+        'status' => 'active'
+      )
+
+      # sort newest first
+      sorted_listings = listings.sort_by { |l| l['listedDate'] }.reverse
+
+      { city: city, listings: sorted_listings }
+    end
+
+    render json: results, status: :ok
   rescue => e
     render json: { error: e.message }, status: :bad_gateway
   end
