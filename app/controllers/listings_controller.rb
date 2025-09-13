@@ -1,23 +1,9 @@
 class ListingsController < ApplicationController
   # skip_before_action :verify_authenticity_token
 
-  # GET /listings/rentals
-  def index
-    service = RentcastService.new
-    listings = service.rental_listings(permitted_params)
-
-    # render json: listings, status: :ok
-    render json: {
-    count: listings.size,
-    listings: listings
-  }, status: :ok
-  rescue => e
-    render json: { error: e.message }, status: :bad_gateway
-  end
-
   def homepage
     service = RentcastService.new
-    cities = %w[Orlando Tampa Miami]
+    cities = %w[Miami]
     state = 'FL'
     limit = 10
 
@@ -38,7 +24,7 @@ class ListingsController < ApplicationController
 
     render json: results, status: :ok
   rescue => e
-    render json: { error: e.message }, status: :bad_gateway
+    render json: { error: e.message }, status: e.http_code
   end
 
   # GET /listings/rentals/:id
