@@ -1,7 +1,7 @@
 class ListingsController < ApplicationController
   # skip_before_action :verify_authenticity_token
 
-  def homepage
+  def homepage_city_listings
     service = RentcastService.new
     cities = %w[Miami]
     state = 'FL'
@@ -19,7 +19,22 @@ class ListingsController < ApplicationController
       # sort newest first
       sorted_listings = listings.sort_by { |l| l['listedDate'] }.reverse
 
-      { city: city, listings: sorted_listings }
+      # map to only essential fields
+      simplified_listings = sorted_listings.map do |listing|
+        {
+          id: listing['id'],
+          address: listing['formattedAddress'],
+          price: listing['price'],
+          bedrooms: listing['bedrooms'],
+          bathrooms: listing['bathrooms'],
+          sqft: listing['squareFootage'],
+          days_on_market: listing['daysOnMarket'],
+          property_type: listing['propertyType'],
+          thumbnail_url: placeholder_image(listing['propertyType'])
+        }
+      end
+
+      { city: city, listings: simplified_listings }
     end
 
     render json: results, status: :ok
@@ -27,8 +42,39 @@ class ListingsController < ApplicationController
     render json: { error: e.message }, status: :bad_gateway
   end
 
+  def homepage_featured
+    service = RentcastService.new
+
+    listings = service.rental_listings(
+      'price' => '3000:*', 
+      'limit' => 10,
+      'daysOld' => '*:7',
+      'status' => 'active'
+    )
+
+    top_listings = listings.sort_by { |l| l['listedDate'] }.reverse
+
+    featured_listings = top_listings.map do |listing|
+      {
+        id: listing['id'],
+        address: listing['formattedAddress'],
+        price: listing['price'],
+        bedrooms: listing['bedrooms'],
+        bathrooms: listing['bathrooms'],
+        sqft: listing['squareFootage'],
+        days_on_market: listing['daysOnMarket'],
+        property_type: listing['propertyType'],
+        thumbnail_url: placeholder_image(listing['propertyType'])
+      }
+    end
+
+    render json: featured_listings, status: :ok
+  rescue => e
+    render json: { error: e.message }, status: :bad_gateway
+  end
+
   # GET /listings/rentals/:id
-  def show
+  def single_listing
     service = RentcastService.new
     response = service.rental_listing(params[:id])
 
@@ -38,6 +84,15 @@ class ListingsController < ApplicationController
   end
 
   private
+
+  def placeholder_image(property_type)
+    case property_type
+    when "Apartment" then "/images/placeholders/apartment.jpg"
+    when "Condo" then "/images/placeholders/condo.jpg"
+    when "Single Family" then "/images/placeholders/single_family.jpg"
+    else "/images/placeholders/default.jpg"
+    end
+  end
 
   def permitted_params
     params.permit(

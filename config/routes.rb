@@ -4,9 +4,9 @@ Rails.application.routes.draw do
   get "bookings/create"
   get "bookings/update"
   get "bookings/index"
-  get 'listings/rentals', to: 'listings#index'
   get 'listings/rentals/:id', to: 'listings#show'
-  get 'listings/homepage', to: 'listings#homepage'
+  get 'listings/homepage_featured', to: 'listings#homepage_featured'
+  get 'listings/homepage_city_listings', to: 'listings#homepage_city_listings'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
