@@ -16,8 +16,6 @@ class RentcastService
     # Cache key based on query params
     cache_key = "rentcast_rentals/#{Digest::MD5.hexdigest(query.to_query)}"
 
-    config.cache_store = :file_store, "#{root}/tmp/cache/"
-
     Rails.cache.fetch(cache_key, expires_in: 30.days) do
       response = self.class.get('/listings/rental/long-term', headers: @headers, query: query)
       raise "RentCast API error: #{response.code}" unless response.success?

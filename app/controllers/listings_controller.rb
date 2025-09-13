@@ -24,7 +24,7 @@ class ListingsController < ApplicationController
 
     render json: results, status: :ok
   rescue => e
-    render json: { error: e.message }, status: e.http_code
+    render json: { error: e.message }, status: :bad_gateway
   end
 
   # GET /listings/rentals/:id
