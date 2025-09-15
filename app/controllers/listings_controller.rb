@@ -20,19 +20,7 @@ class ListingsController < ApplicationController
       sorted_listings = listings.sort_by { |l| l['listedDate'] }.reverse
 
       # map to only essential fields
-      simplified_listings = sorted_listings.map do |listing|
-        {
-          id: listing['id'],
-          address: listing['formattedAddress'],
-          price: listing['price'],
-          bedrooms: listing['bedrooms'],
-          bathrooms: listing['bathrooms'],
-          sqft: listing['squareFootage'],
-          days_on_market: listing['daysOnMarket'],
-          property_type: listing['propertyType'],
-          thumbnail_url: placeholder_image(listing['propertyType'])
-        }
-      end
+      simplified_listings = sorted_listings.map { |l| format_listing(l) }
 
       { city: city, listings: simplified_listings }
     end
@@ -54,21 +42,9 @@ class ListingsController < ApplicationController
 
     top_listings = listings.sort_by { |l| l['listedDate'] }.reverse
 
-    featured_listings = top_listings.map do |listing|
-      {
-        id: listing['id'],
-        address: listing['formattedAddress'],
-        price: listing['price'],
-        bedrooms: listing['bedrooms'],
-        bathrooms: listing['bathrooms'],
-        sqft: listing['squareFootage'],
-        days_on_market: listing['daysOnMarket'],
-        property_type: listing['propertyType'],
-        thumbnail_url: placeholder_image(listing['propertyType'])
-      }
-    end
+    featured_listings = top_listings.map { |l| format_listing(l) }
 
-    render json: featured_listings, status: :ok
+    render json: { type: "featured", listings: featured_listings }, status: :ok
   rescue => e
     render json: { error: e.message }, status: :bad_gateway
   end
@@ -84,6 +60,24 @@ class ListingsController < ApplicationController
   end
 
   private
+
+  def format_listing(listing)
+    {
+      id: listing['id'],
+      address: listing['formattedAddress'],
+      city: listing['city'],
+      state: listing['state'],
+      zip_code: listing['zipCode'],
+      price: listing['price'],
+      bedrooms: listing['bedrooms'],
+      bathrooms: listing['bathrooms'],
+      sqft: listing['squareFootage'],
+      days_on_market: listing['daysOnMarket'],
+      property_type: listing['propertyType'],
+      thumbnail_url: placeholder_image(listing['propertyType'])
+    }
+  end
+
 
   def placeholder_image(property_type)
     case property_type
