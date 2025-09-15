@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   get "bookings/create"
   get "bookings/update"
   get "bookings/index"
-  get 'listings/rentals/:id', to: 'listings#show'
+  get 'listings/rentals/:id', to: 'listings#single_listing'
   get 'listings/homepage_featured', to: 'listings#homepage_featured'
   get 'listings/homepage_city_listings', to: 'listings#homepage_city_listings'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

@@ -54,7 +54,11 @@ class ListingsController < ApplicationController
     service = RentcastService.new
     response = service.rental_listing(params[:id])
 
-    render json: response.parsed_response, status: response.code
+    if response.success?
+      render json: format_single_listing(response.parsed_response), status: :ok
+    else
+      render json: { error: "Listing not found" }, status: :not_found
+    end
   rescue => e
     render json: { error: e.message }, status: :bad_gateway
   end
@@ -78,6 +82,25 @@ class ListingsController < ApplicationController
     }
   end
 
+  def format_single_listing(listing)
+    {
+      id:               listing['id'],
+      formatted_address: listing['formattedAddress'],
+      address_line1:    listing['addressLine1'],
+      city:             listing['city'],
+      state:            listing['state'],
+      zip_code:         listing['zipCode'],
+      property_type:    listing['propertyType'],
+      bedrooms:         listing['bedrooms'],
+      bathrooms:        listing['bathrooms'],
+      sqft:             listing['squareFootage'],
+      price:            listing['price'],
+      days_on_market:   listing['daysOnMarket'],
+      listing_agent:    listing['listingAgent'],
+      listing_office:   listing['listingOffice'],
+      thumbnail_url:    placeholder_image(listing['propertyType'])
+    }
+  end
 
   def placeholder_image(property_type)
     case property_type
