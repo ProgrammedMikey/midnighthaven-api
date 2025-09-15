@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get 'listings/rentals/:id', to: 'listings#single_listing'
   get 'listings/homepage_featured', to: 'listings#homepage_featured'
   get 'listings/homepage_city_listings', to: 'listings#homepage_city_listings'
+  resources :favorites, only: [:index, :create, :destroy], param: :listing_id
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
