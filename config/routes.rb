@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "home/index"
+  root "home#index"
   get "reviews/create"
   get "reviews/index"
   get "bookings/create"
