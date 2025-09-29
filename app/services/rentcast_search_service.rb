@@ -66,6 +66,8 @@ class RentcastSearchService
       rc_params[rc_key] = v if ALLOWED_PARAMS.include?(rc_key.to_s)
     end
 
+    rc_params[:limit] ||= 10  # default to 10 if not provided
+
     rc_params
   end
 

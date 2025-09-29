@@ -1,12 +1,36 @@
 class SearchController < ApplicationController
   def listings
     results = RentcastSearchService.new.rental_listings(search_params)
-    render json: results
+
+    # transform results before rendering
+    transformed = results.map { |listing| transform_listing(listing) }
+
+    render json: transformed
   rescue => e
     render json: { error: e.message }, status: :bad_request
   end
 
   private
+
+  def transform_listing(raw)
+    {
+      id: raw['id'],
+      formattedAddress: raw['formattedAddress'],
+      city: raw['city'],
+      state: raw['state'],
+      zipCode: raw['zipCode'],
+      propertyType: raw['propertyType'],
+      bedrooms: raw['bedrooms'],
+      bathrooms: raw['bathrooms'],
+      squareFootage: raw['squareFootage'],
+      price: raw['price'],
+      status: raw['status'],
+      listedDate: raw['listedDate'],
+      daysOnMarket: raw['daysOnMarket'],
+      latitude: raw['latitude'],
+      longitude: raw['longitude']
+    }
+  end
 
   def search_params
     params.permit(
