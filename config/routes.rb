@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "search/listings"
   get "home/index"
   root "home#index"
   get "reviews/create"
