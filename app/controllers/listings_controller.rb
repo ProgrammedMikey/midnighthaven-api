@@ -3,9 +3,11 @@ class ListingsController < ApplicationController
 
   def homepage_city_listings
     service = RentcastService.new
-    cities = %w[Miami]
-    state = 'FL'
-    limit = 10
+
+    # Frontend passes ?cities=Miami,Orlando
+    cities = params[:cities]&.split(',') || %w[Miami]
+    state = params[:state] || 'FL'
+    limit = (params[:limit] || 10).to_i
 
     results = cities.map do |city|
       listings = service.rental_listings(
@@ -16,10 +18,7 @@ class ListingsController < ApplicationController
         'status' => 'active'
       )
 
-      # sort newest first
       sorted_listings = listings.sort_by { |l| l['listedDate'] }.reverse
-
-      # map to only essential fields
       simplified_listings = sorted_listings.map { |l| format_listing(l) }
 
       { city: city, listings: simplified_listings }
